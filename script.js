@@ -92,7 +92,7 @@ function updatePrice(oldPrice) {
 function attemptToBuyProducer(data, producerId) {
   let canAfford = canAffordProducer(data, producerId)
   let producer = getProducerById(data, producerId)
-  
+
   if (canAfford) {
     producer.qty += 1
     data.coffee -= producer.price
@@ -104,11 +104,27 @@ function attemptToBuyProducer(data, producerId) {
 }
 
 function buyButtonClick(event, data) {
-  // your code here
+
+  if(event.target.tagName != "BUTTON"){
+    return
+  }
+
+  let canAfford = canAffordProducer(data, event.target.id.slice(4))
+
+  if(canAfford){
+    attemptToBuyProducer(data, event.target.id.slice(4))
+    renderProducers(data)
+    updateCPSView(data.totalCPS)
+    updateCoffeeView(data.coffee)
+  } else {
+    window.alert("Not enough coffee!")
+  }
 }
 
 function tick(data) {
-  // your code here
+  data.coffee += data.totalCPS
+  updateCoffeeView(data.coffee)
+  renderProducers(data)
 }
 
 /*************************
