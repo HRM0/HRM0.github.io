@@ -5,11 +5,13 @@
  **************/
 
 function updateCoffeeView(coffeeQty) {
-  // your code here
+  document.querySelector("#coffee_counter").innerText = coffeeQty
 }
 
 function clickCoffee(data) {
-  // your code here
+ data.coffee += 1
+ updateCoffeeView(data.coffee)
+ renderProducers(data)
 }
 
 /**************
@@ -17,15 +19,19 @@ function clickCoffee(data) {
  **************/
 
 function unlockProducers(producers, coffeeCount) {
-  // your code here
+  producers.map(element => {
+    if (element.price *.5 <= coffeeCount) {
+      element.unlocked = true
+    }
+  })
 }
 
 function getUnlockedProducers(data) {
-  // your code here
+  return data.producers.filter(el => el.unlocked )
 }
 
 function makeDisplayNameFromId(id) {
-  // your code here
+  return id.split("_").map(el => el = el[0].toUpperCase()+el.slice(1).toLowerCase()).join(" ") 
 }
 
 // You shouldn't need to edit this function-- its tests should pass once you've written makeDisplayNameFromId
@@ -50,11 +56,17 @@ function makeProducerDiv(producer) {
 }
 
 function deleteAllChildNodes(parent) {
-  // your code here
+  while(parent.firstChild) {
+    parent.removeChild(parent.firstChild)
+  }
 }
 
 function renderProducers(data) {
-  // your code here
+  let prodCont = document.getElementById("producer_container")
+  unlockProducers(data.producers,data.coffee)
+  deleteAllChildNodes(prodCont)
+  getUnlockedProducers(data).map(el => prodCont.appendChild(makeProducerDiv(el)))
+
 }
 
 /**************
@@ -62,23 +74,33 @@ function renderProducers(data) {
  **************/
 
 function getProducerById(data, producerId) {
-  // your code here
+  return data.producers.filter(el => el.id ===producerId)[0]
 }
 
 function canAffordProducer(data, producerId) {
-  // your code here
+  return data.coffee >= getProducerById(data, producerId).price
 }
 
 function updateCPSView(cps) {
-  // your code here
+  document.getElementById("cps").innerText = cps
 }
 
 function updatePrice(oldPrice) {
-  // your code here
+  return Math.floor(oldPrice*1.25)
 }
 
 function attemptToBuyProducer(data, producerId) {
-  // your code here
+  let canAfford = canAffordProducer(data, producerId)
+  let producer = getProducerById(data, producerId)
+  
+  if (canAfford) {
+    producer.qty += 1
+    data.coffee -= producer.price
+    producer.price = updatePrice(producer.price)
+    data.totalCPS += producer.cps
+  }
+
+  return canAfford
 }
 
 function buyButtonClick(event, data) {
