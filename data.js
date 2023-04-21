@@ -1,5 +1,5 @@
 window.data = {
-  coffee: 0,
+  coffee: 400,
   totalCPS: 0,
   producers: [
     {

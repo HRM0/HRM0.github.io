@@ -44,6 +44,7 @@ function makeProducerDiv(producer) {
   <div class="producer-column">
     <div class="producer-title">${displayName}</div>
     <button type="button" id="buy_${producer.id}">Buy</button>
+    <button type="button" id="sell_${producer.id}">Sell</button>
   </div>
   <div class="producer-column">
     <div>Quantity: ${producer.qty}</div>
@@ -103,9 +104,23 @@ function attemptToBuyProducer(data, producerId) {
   return canAfford
 }
 
+function attemptToSellProducer(data, producerId) {
+  let producer = getProducerById(data, producerId)
+  let haveProducer = producer.qty>=1
+
+  if (haveProducer) {
+    producer.qty -= 1
+    data.coffee += Math.ceil(producer.price*.5)
+    producer.price = Math.ceil(producer.price/1.25)
+    data.totalCPS -= producer.cps
+  }
+
+  return haveProducer
+}
+
 function buyButtonClick(event, data) {
 
-  if(event.target.tagName != "BUTTON"){
+  if(event.target.tagName != "BUTTON"||event.target.id[0] != "b"){
     return
   }
 
@@ -118,6 +133,25 @@ function buyButtonClick(event, data) {
     updateCoffeeView(data.coffee)
   } else {
     window.alert("Not enough coffee!")
+  }
+}
+
+function sellButtonClick(event, data) {
+
+  if(event.target.tagName != "BUTTON"){
+    return
+  }
+  
+  let producer = getProducerById(data, event.target.id.slice(5))
+
+  console.log(producer)
+  if(producer.qty>=1){
+    attemptToSellProducer(data, event.target.id.slice(5))
+    renderProducers(data)
+    updateCPSView(data.totalCPS)
+    updateCoffeeView(data.coffee)
+  } else {
+    window.alert("Nothing to Sell!")
   }
 }
 
@@ -154,7 +188,12 @@ if (typeof process === 'undefined') {
   // Pass in the browser event and our data object to the event listener
   const producerContainer = document.getElementById('producer_container');
   producerContainer.addEventListener('click', event => {
-    buyButtonClick(event, data);
+    
+    if (event.target.id[0]== "b"){
+      buyButtonClick(event, data);
+    } else if(event.target.id[0]== "s"){
+      sellButtonClick(event, data);
+    }
   });
 
   // Call the tick function passing in the data object once per second
